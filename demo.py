@@ -5,6 +5,8 @@ from base64 import b64decode
 import apns
 import ids
 
+ALWAYS_REGISTER = True
+MIGRATE_CONFIG = False
 
 def input_multiline(prompt):
     print(prompt)
@@ -48,7 +50,8 @@ def convert_config(old):
     return new
 
 # Uncomment this to change from an old config.json to a new one
-#CONFIG = convert_config(CONFIG)
+if MIGRATE_CONFIG:
+    CONFIG = convert_config(CONFIG)
 
 
 conn = apns.APNSConnection(
@@ -75,7 +78,7 @@ else:
 
     user.authenticate(username, password)
 
-if CONFIG.get("id", {}).get("cert") is not None:
+if not ALWAYS_REGISTER and (CONFIG.get("id", {}).get("cert") is not None):
     id_keypair = ids._helpers.KeyPair(CONFIG["id"]["key"], CONFIG["id"]["cert"])
     user.restore_identity(id_keypair)
 else:
